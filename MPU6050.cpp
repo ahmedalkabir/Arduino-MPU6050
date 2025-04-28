@@ -352,30 +352,47 @@ Vector MPU6050::readRawAccel(void)
     #endif
     Wire.endTransmission();
 
+
+#ifdef ESP_IDF_VERSION_MAJOR
+    Wire.requestFrom(mpuAddress, 6);
+    while (Wire.available() < 6);
+    uint8_t xha = Wire.read();
+    uint8_t xla = Wire.read();
+    uint8_t yha = Wire.read();
+    uint8_t yla = Wire.read();
+    uint8_t zha = Wire.read();
+    uint8_t zla = Wire.read();
+
+    ra.XAxis = (int16_t)(xha << 8 | xla);
+    ra.YAxis = (int16_t)(yha << 8 | yla);
+    ra.ZAxis = (int16_t)(zha << 8 | zla);
+#else
     Wire.beginTransmission(mpuAddress);
     Wire.requestFrom(mpuAddress, 6);
 
     while (Wire.available() < 6);
 
     #if ARDUINO >= 100
-	uint8_t xha = Wire.read();
-	uint8_t xla = Wire.read();
+    uint8_t xha = Wire.read();
+    uint8_t xla = Wire.read();
         uint8_t yha = Wire.read();
-	uint8_t yla = Wire.read();
-	uint8_t zha = Wire.read();
-	uint8_t zla = Wire.read();
+    uint8_t yla = Wire.read();
+    uint8_t zha = Wire.read();
+    uint8_t zla = Wire.read();
     #else
-	uint8_t xha = Wire.receive();
-	uint8_t xla = Wire.receive();
-	uint8_t yha = Wire.receive();
-	uint8_t yla = Wire.receive();
-	uint8_t zha = Wire.receive();
-	uint8_t zla = Wire.receive();
+    uint8_t xha = Wire.receive();
+    uint8_t xla = Wire.receive();
+    uint8_t yha = Wire.receive();
+    uint8_t yla = Wire.receive();
+    uint8_t zha = Wire.receive();
+    uint8_t zla = Wire.receive();
     #endif
 
     ra.XAxis = (int16_t)(xha << 8 | xla);
     ra.YAxis = (int16_t)(yha << 8 | yla);
     ra.ZAxis = (int16_t)(zha << 8 | zla);
+#endif
+
 
     return ra;
 }
@@ -626,15 +643,19 @@ uint8_t MPU6050::fastRegister8(uint8_t reg)
     #endif
     Wire.endTransmission();
 
+#ifdef ESP_IDF_VERSION_MAJOR
+    Wire.requestFrom(mpuAddress, 1);
+    value = Wire.read();
+#else
     Wire.beginTransmission(mpuAddress);
     Wire.requestFrom(mpuAddress, 1);
     #if ARDUINO >= 100
-	value = Wire.read();
+    value = Wire.read();
     #else
-	value = Wire.receive();
+    value = Wire.receive();
     #endif;
     Wire.endTransmission();
-
+#endif
     return value;
 }
 
@@ -651,15 +672,22 @@ uint8_t MPU6050::readRegister8(uint8_t reg)
     #endif
     Wire.endTransmission();
 
+
+#ifdef ESP_IDF_VERSION_MAJOR
+    Wire.requestFrom(mpuAddress, 1);
+    while(!Wire.available()) {};
+    value = Wire.read();
+#else
     Wire.beginTransmission(mpuAddress);
     Wire.requestFrom(mpuAddress, 1);
     while(!Wire.available()) {};
     #if ARDUINO >= 100
-	value = Wire.read();
+    value = Wire.read();
     #else
-	value = Wire.receive();
+    value = Wire.receive();
     #endif;
     Wire.endTransmission();
+#endif
 
     return value;
 }
@@ -690,6 +718,12 @@ int16_t MPU6050::readRegister16(uint8_t reg)
     #endif
     Wire.endTransmission();
 
+#ifdef ESP_IDF_VERSION_MAJOR
+    Wire.requestFrom(mpuAddress, 2);
+    while(!Wire.available()) {};
+    uint8_t vha = Wire.read();
+    uint8_t vla = Wire.read();
+#else
     Wire.beginTransmission(mpuAddress);
     Wire.requestFrom(mpuAddress, 2);
     while(!Wire.available()) {};
@@ -703,7 +737,8 @@ int16_t MPU6050::readRegister16(uint8_t reg)
     Wire.endTransmission();
 
     value = vha << 8 | vla;
-
+#endif
+    
     return value;
 }
 

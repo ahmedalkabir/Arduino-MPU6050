@@ -1,6 +1,9 @@
 Arduino-MPU6050
 ===============
 
+### Notes:
+> A modified version of the Arduino-MPU6050 library to address the blocking read issue on ESP32 platforms.
+
 MPU6050 Triple Axis Gyroscope & Accelerometer Arduino Library.
 
 ![MPU6050 Processing](http://www.jarzebski.pl/media/zoom/publish/2014/10/mpu6050-processing-2.png "MPU6050 Processing")
