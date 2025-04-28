@@ -363,9 +363,7 @@ Vector MPU6050::readRawAccel(void)
     uint8_t zha = Wire.read();
     uint8_t zla = Wire.read();
 
-    ra.XAxis = (int16_t)(xha << 8 | xla);
-    ra.YAxis = (int16_t)(yha << 8 | yla);
-    ra.ZAxis = (int16_t)(zha << 8 | zla);
+
 #else
     Wire.beginTransmission(mpuAddress);
     Wire.requestFrom(mpuAddress, 6);
@@ -388,12 +386,11 @@ Vector MPU6050::readRawAccel(void)
     uint8_t zla = Wire.receive();
     #endif
 
+#endif
+
     ra.XAxis = (int16_t)(xha << 8 | xla);
     ra.YAxis = (int16_t)(yha << 8 | yla);
     ra.ZAxis = (int16_t)(zha << 8 | zla);
-#endif
-
-
     return ra;
 }
 
@@ -430,31 +427,44 @@ Vector MPU6050::readRawGyro(void)
     #endif
     Wire.endTransmission();
 
+
+
+#ifdef ESP_IDF_VERSION_MAJOR
+    Wire.requestFrom(mpuAddress, 6);
+    while (Wire.available() < 6);
+
+    uint8_t xha = Wire.read();
+    uint8_t xla = Wire.read();
+    uint8_t yha = Wire.read();
+    uint8_t yla = Wire.read();
+    uint8_t zha = Wire.read();
+    uint8_t zla = Wire.read();
+#else
     Wire.beginTransmission(mpuAddress);
     Wire.requestFrom(mpuAddress, 6);
 
     while (Wire.available() < 6);
 
     #if ARDUINO >= 100
-	uint8_t xha = Wire.read();
-	uint8_t xla = Wire.read();
+    uint8_t xha = Wire.read();
+    uint8_t xla = Wire.read();
         uint8_t yha = Wire.read();
-	uint8_t yla = Wire.read();
-	uint8_t zha = Wire.read();
-	uint8_t zla = Wire.read();
+    uint8_t yla = Wire.read();
+    uint8_t zha = Wire.read();
+    uint8_t zla = Wire.read();
     #else
-	uint8_t xha = Wire.receive();
-	uint8_t xla = Wire.receive();
-	uint8_t yha = Wire.receive();
-	uint8_t yla = Wire.receive();
-	uint8_t zha = Wire.receive();
-	uint8_t zla = Wire.receive();
+    uint8_t xha = Wire.receive();
+    uint8_t xla = Wire.receive();
+    uint8_t yha = Wire.receive();
+    uint8_t yla = Wire.receive();
+    uint8_t zha = Wire.receive();
+    uint8_t zla = Wire.receive();
     #endif
+#endif
 
     rg.XAxis = (int16_t)(xha << 8 | xla);
     rg.YAxis = (int16_t)(yha << 8 | yla);
     rg.ZAxis = (int16_t)(zha << 8 | zla);
-
     return rg;
 }
 
